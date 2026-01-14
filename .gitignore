@@ -1,0 +1,116 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Dataset / output files
+*.csv
+*.png
+
+# Model / checkpoint files
+*.h5
+*.pt
+*.ckpt
+*.joblib
+*.pkl
+*.keras
+*.hdf5
+*.pb
+*.pth
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Audio files
+*.wav
+*.mp3
+*.flac
+*.ogg
+*.m4a
+
+# Image files
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.tif
+
+# Python build and distribution
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Testing and coverage
+.coverage
+.pytest_cache/
+.tox/
+htmlcov/
+.cache/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Documentation
+docs/_build/
+site/
+
+# Security
+.env
+.env.local
+.env.*.local
+config/secrets.json
+secrets.json
+*.key
+*.pem
+*.crt
+
+# Project specific databases and histories
+personal_emotion_memory.db
+mood_history.json
+quantum_emotion_history.json
+sound_emotion_history.json
+
+# Keep important files (unignore)
+!README.md
+!requirements.txt
+!setup.py
+!.gitkeep
+!data/expressions/.gitkeep
+!data/sound_data/.gitkeep
+!model/.gitkeep
+!notebooks/.gitkeep
