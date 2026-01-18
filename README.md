@@ -91,6 +91,11 @@ python build_executable.py
 - **Windows**: `dist/QuantumEmotionPipeline.exe`
 - **Linux**: `dist/QuantumEmotionPipeline`
 
+
+** FLOWCHART ** 
+
+<img width="886" height="855" alt="Screenshot 2026-01-18 202554" src="https://github.com/user-attachments/assets/b421d8be-a395-409b-b107-9f0a8765c169" />
+
 ## 📚 Documentation
 
 - `QUICK_START.md` - Quick start guide
