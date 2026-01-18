@@ -78,7 +78,7 @@ class EmotionMemoryGUI:
                   command=self.add_emotion_session).grid(row=1, column=0, pady=10)
         
         # Baseline emotions section
-        baseline_frame = ttk.LabelFrame(dashboard_frame, text="Your Emotional Baseline", padding="10")
+        baseline_frame = ttk.LabelFrame(dashboard_frame, text="Emotional Baseline", padding="10")
         baseline_frame.grid(row=1, column=0, sticky=(tk.W, tk.E), padx=10, pady=10)
         
         self.baseline_canvas = tk.Canvas(baseline_frame, height=150, bg='white')
@@ -254,7 +254,7 @@ class EmotionMemoryGUI:
                              font=("Arial", 8), anchor="s")
         
         # Draw title
-        title = "Current Emotions" if chart_type == "current" else "Your Emotional Baseline"
+        title = "Current Emotions" if chart_type == "current" else "Emotional Baseline"
         canvas.create_text(width/2, 10, text=title, font=("Arial", 12, "bold"))
     
     def update_history(self):
@@ -370,7 +370,7 @@ class EmotionMemoryGUI:
             return
         
         if messagebox.askyesno("Confirm Delete", 
-                              "This will permanently delete all your emotion data. Are you sure?"):
+                              "This will permanently delete all emotion data. Are you sure?"):
             try:
                 self.memory.delete_user_data()
                 messagebox.showinfo("Success", "All data deleted successfully")
@@ -417,7 +417,7 @@ class EmotionInputDialog:
         main_frame = ttk.Frame(self.dialog, padding="20")
         main_frame.pack(fill=tk.BOTH, expand=True)
         
-        ttk.Label(main_frame, text="Enter your current emotions (0.0 - 1.0):", 
+        ttk.Label(main_frame, text="Enter current emotions (0.0 - 1.0):", 
                  font=("Arial", 10, "bold")).pack(pady=(0, 10))
         
         self.emotion_vars = {}

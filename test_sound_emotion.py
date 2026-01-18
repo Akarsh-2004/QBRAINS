@@ -11,6 +11,8 @@ from tensorflow.keras.models import load_model
 import os
 import warnings
 
+from src.custom_layers import CustomDense, CustomInputLayer
+
 warnings.filterwarnings('ignore')
 
 class SoundEmotionDetector:
@@ -36,8 +38,14 @@ class SoundEmotionDetector:
     def load_model_components(self):
         """Load trained model and preprocessing components"""
         try:
+            # Custom objects to handle model loading issues
+            custom_objects = {
+                'Dense': CustomDense,
+                'InputLayer': CustomInputLayer
+            }
+            
             # Load model
-            self.model = load_model(self.model_path)
+            self.model = load_model(self.model_path, custom_objects=custom_objects)
             print(f"✅ Model loaded from {self.model_path}")
             
             # Load scaler
@@ -75,21 +83,67 @@ class SoundEmotionDetector:
             else:
                 y = y[:self.max_pad_length]
             
-            # Extract features
+            # Load audio file (full duration)
+            y, sr = librosa.load(file_path, duration=self.duration, sr=self.sample_rate)
+            
+            # Extract features (same as training pipeline)
             mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=self.n_mfcc, 
                                        n_fft=self.n_fft, hop_length=self.hop_length)
-            chroma = librosa.feature.chroma(y=y, sr=sr, hop_length=self.hop_length)
-            spectral_contrast = librosa.feature.spectral_contrast(y=y, sr=sr, hop_length=self.hop_length)
-            zcr = librosa.feature.zero_crossing_rate(y, hop_length=self.hop_length)
-            spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, hop_length=self.hop_length)
-            rms = librosa.feature.rms(y=y, hop_length=self.hop_length)
+            # Pad or truncate to consistent time frames
+            if mfccs.shape[1] < self.max_pad_length:
+                mfccs = np.pad(mfccs, ((0, 0), (0, self.max_pad_length - mfccs.shape[1])), mode='constant')
+            else:
+                mfccs = mfccs[:, :self.max_pad_length]
             
-            # Combine features
-            combined = np.concatenate([
+            chroma = librosa.feature.chroma_stft(y=y, sr=sr, hop_length=self.hop_length, n_fft=self.n_fft)
+            if chroma.shape[1] < self.max_pad_length:
+                chroma = np.pad(chroma, ((0, 0), (0, self.max_pad_length - chroma.shape[1])), mode='constant')
+            else:
+                chroma = chroma[:, :self.max_pad_length]
+            
+            spectral_contrast = librosa.feature.spectral_contrast(y=y, sr=sr, hop_length=self.hop_length)
+            if spectral_contrast.shape[1] < self.max_pad_length:
+                spectral_contrast = np.pad(spectral_contrast, ((0, 0), (0, self.max_pad_length - spectral_contrast.shape[1])), mode='constant')
+            else:
+                spectral_contrast = spectral_contrast[:, :self.max_pad_length]
+            
+            zcr = librosa.feature.zero_crossing_rate(y, hop_length=self.hop_length)
+            if zcr.shape[1] < self.max_pad_length:
+                zcr = np.pad(zcr, ((0, 0), (0, self.max_pad_length - zcr.shape[1])), mode='constant')
+            else:
+                zcr = zcr[:, :self.max_pad_length]
+            
+            spectral_rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, hop_length=self.hop_length)
+            if spectral_rolloff.shape[1] < self.max_pad_length:
+                spectral_rolloff = np.pad(spectral_rolloff, ((0, 0), (0, self.max_pad_length - spectral_rolloff.shape[1])), mode='constant')
+            else:
+                spectral_rolloff = spectral_rolloff[:, :self.max_pad_length]
+            
+            rms = librosa.feature.rms(y=y, hop_length=self.hop_length)
+            if rms.shape[1] < self.max_pad_length:
+                rms = np.pad(rms, ((0, 0), (0, self.max_pad_length - rms.shape[1])), mode='constant')
+            else:
+                rms = rms[:, :self.max_pad_length]
+            
+            # Combine features along feature dimension
+            combined_features = np.concatenate([
                 mfccs, chroma, spectral_contrast, zcr, spectral_rolloff, rms
             ], axis=0)
             
-            return combined
+            # Flatten to 1D for StandardScaler (same as training pipeline)
+            if combined_features.ndim == 1:
+                combined_features = combined_features.ravel()
+            elif combined_features.shape[1] == 1:
+                combined_features = combined_features.flatten()
+            else:
+                # Normal case: (total_features, time_steps) -> transpose and flatten
+                combined_features = combined_features.T.flatten()
+            
+            # Ensure 1D
+            if combined_features.ndim > 1:
+                combined_features = combined_features.ravel()
+            
+            return combined_features
             
         except Exception as e:
             print(f"❌ Error extracting features from {file_path}: {e}")
@@ -112,9 +166,16 @@ class SoundEmotionDetector:
             
             # Reshape for model
             total_features = normalized.shape[1]
-            n_time_steps = 173
-            n_features_per_step = total_features // n_time_steps
-            reshaped = normalized.reshape(1, n_time_steps, n_features_per_step)
+            n_time_steps = self.max_pad_length  # 173
+            n_features_per_step = 62  # 40 (MFCC) + 12 (Chroma) + 7 (Spectral Contrast) + 1 (ZCR) + 1 (Rolloff) + 1 (RMS)
+            
+            if total_features == n_time_steps * n_features_per_step:
+                reshaped = normalized.reshape(1, n_time_steps, n_features_per_step)
+            elif total_features % n_features_per_step == 0:
+                inferred_time_steps = total_features // n_features_per_step
+                reshaped = normalized.reshape(1, inferred_time_steps, n_features_per_step)
+            else:
+                raise ValueError(f"Cannot reshape features of size {total_features} into (time_steps, {n_features_per_step})")
             
             # Predict
             prediction = self.model.predict(reshaped, verbose=0)

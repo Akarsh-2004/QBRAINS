@@ -223,7 +223,7 @@ class PersonalEmotionMemory:
             if value > baseline + 0.3:  # Significantly higher than baseline
                 insights.append({
                     'type': 'emotion_spike',
-                    'content': f"Your {emotion} level ({value:.2f}) is higher than your usual baseline ({baseline:.2f})",
+                    'content': f"The {emotion} level ({value:.2f}) is higher than the usual baseline ({baseline:.2f})",
                     'confidence': min((value - baseline) * 2, 1.0)
                 })
         
@@ -384,7 +384,7 @@ class PersonalEmotionMemory:
 
 # Example usage and integration with emotion reader
 def integrate_with_emotion_reader(emotion_model, image_path: str, context: str = "general"):
-    """Integration function to use with your emotion reader"""
+    """Integration function to use with the emotion reader"""
     
     # Initialize personal memory
     memory = PersonalEmotionMemory()

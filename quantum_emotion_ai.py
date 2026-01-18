@@ -372,7 +372,7 @@ class QuantumEmotionAI:
         
         # Uncertainty responses
         if state.quantum_uncertainty > 0.5:
-            responses['clarification'] = "I'm having trouble reading your emotional state clearly. Can you help me understand?"
+            responses['clarification'] = "I'm having trouble interpreting the input clearly. Can you help me understand?"
         
         return responses
 

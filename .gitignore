@@ -17,10 +17,17 @@ env/
 *.tmp
 
 # Dataset / output files
+data/
 *.csv
 *.png
+*.json
+personal_emotion_memory.db
+mood_history.json
+quantum_emotion_history.json
+sound_emotion_history.json
 
 # Model / checkpoint files
+model/
 *.h5
 *.pt
 *.ckpt
@@ -30,6 +37,9 @@ env/
 *.hdf5
 *.pb
 *.pth
+*.safetensors
+*.bin
+*.onnx
 
 # IDE / Editor files
 .vscode/
@@ -105,12 +115,22 @@ mood_history.json
 quantum_emotion_history.json
 sound_emotion_history.json
 
+# Antigravity brain artifacts (planning/walkthrough files)
+.gemini/
+**/.gemini/
+
+# PyInstaller build files
+*.spec
+build/
+dist/
+
+# Test files
+test_*.py
+*_test.py
+
 # Keep important files (unignore)
 !README.md
 !requirements.txt
 !setup.py
-!.gitkeep
-!data/expressions/.gitkeep
-!data/sound_data/.gitkeep
-!model/.gitkeep
-!notebooks/.gitkeep
+!**/.gitkeep
+!QuantumEmotionPipeline.spec

@@ -6,6 +6,14 @@ import json
 import os
 from datetime import datetime
 
+# Import custom layer for model loading compatibility
+try:
+    from src.custom_layers import CustomDense, CustomInputLayer
+except ImportError:
+    print("⚠️ Could not import CustomDense from src.custom_layers")
+    CustomDense = None
+    CustomInputLayer = None
+
 class SimpleMoodTracker:
     """Simplified mood tracker that works without TensorFlow dependency issues"""
     
@@ -38,12 +46,22 @@ class SimpleMoodTracker:
             # Try different import methods
             try:
                 from tensorflow.keras.models import load_model
-                self.model = load_model(self.model_path)
+                # Custom objects to handle model loading issues
+                custom_objects = {
+                    'Dense': CustomDense,
+                    'InputLayer': CustomInputLayer
+                } if CustomDense and CustomInputLayer else {}
+                self.model = load_model(self.model_path, custom_objects=custom_objects)
                 print(f"✓ Model loaded using TensorFlow")
             except ImportError:
                 print("⚠️ TensorFlow not available, trying Keras standalone...")
                 from keras.models import load_model
-                self.model = load_model(self.model_path)
+                # Custom objects to handle model loading issues
+                custom_objects = {
+                    'Dense': CustomDense,
+                    'InputLayer': CustomInputLayer
+                } if CustomDense and CustomInputLayer else {}
+                self.model = load_model(self.model_path, custom_objects=custom_objects)
                 print(f"✓ Model loaded using Keras")
             
             print(f"✓ Model loaded successfully from {self.model_path}")
